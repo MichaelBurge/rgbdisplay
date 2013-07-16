@@ -12,8 +12,14 @@ typedef struct InterpreterState
 {
 	Index ip;
 	Stack *data;
-	uint8_t instructions[6][6];
-	uint32_t colors[6][6];
+	uint8_t *instructions;
+	uint32_t *colors;
 } InterpreterState;
 
+typedef enum Opcode {
+	NoOp
+} Opcode;
+
+Index defaultIndex();
+InterpreterState emptyInterpreter();
 void runInterpreterStep(InterpreterState* state);

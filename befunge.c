@@ -65,7 +65,24 @@ void Down(Index *idx)
 	isNetherZone(idx) && (idx->y += YStats(idx->x).vectorLength);
 }
 
-void runIntepreterStep(InterpreterState *state)
+Index defaultIndex() { Index ret = {.x = 0, .y = 0}; return ret; }
+uint8_t *defaultGrid() { static uint8_t ret[] = { [0 ... 35] = ' ' }; return ret; }
+uint32_t *defaultColors() { static uint32_t ret[] = { [0 ... 35] = 0 }; return ret; }
+
+void runInterpreterStep(InterpreterState *state)
 {
+	return;
 }
 
+InterpreterState emptyInterpreter()
+{
+	Stack emptyStack = empty();
+
+	InterpreterState ret;
+	ret.ip = defaultIndex();
+	ret.data = &emptyStack;
+	ret.instructions = defaultGrid();
+	ret.colors = defaultColors();
+
+	return ret;
+}
