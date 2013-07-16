@@ -34,7 +34,7 @@ bool isNetherZone(Index *idx)
 	bool isInDisplayArea =
 		isInBounds(idx->x, xStats.vectorStart, xStats.vectorLength) &&
 		isInBounds(idx->y, yStats.vectorStart, yStats.vectorLength);
-	return !isInBounds;
+	return !isInDisplayArea;
 }
 
 bool Left(Index *idx)
