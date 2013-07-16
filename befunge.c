@@ -65,13 +65,28 @@ bool Down(Index *idx)
 	return isNetherZone(idx) && (idx->y += YStats(idx->x).vectorLength);
 }
 
+uint16_t indexToOffset(Index index) {
+	uint16_t offset = index.x;
+	while (index.y --> 0)
+		offset += XStats(index.y).vectorLength;
+	return offset;
+};
+
 Index defaultIndex() { Index ret = {.x = 0, .y = 0}; return ret; }
 uint8_t *defaultGrid() { static uint8_t ret[] = { [0 ... 35] = ' ' }; return ret; }
 uint32_t *defaultColors() { static uint32_t ret[] = { [0 ... 35] = 0 }; return ret; }
 
 /* Opcodes */
+typedef void (*Mutator)(InterpreterState*);
 
-void GoNorth(InterpreterState *state) { }
+void IrrecoverableError(InterpreterState *state) { state->errorFlag = 1; }
+void DoNothing(InterpreterState *state) { return; }
+void GoNorth(InterpreterState *state) { state->delta.dx =  0; state->delta.dy = -1; }
+void GoSouth(InterpreterState *state) { state->delta.dx =  0; state->delta.dy = +1; }
+void GoEast(InterpreterState *state)  { state->delta.dx = +1; state->delta.dy =  0; }
+void GoWest(InterpreterState *state)  { state->delta.dx = -1; state->delta.dy =  0; }
+void GoRandom(InterpreterState *state) { Mutator jmp[] = {&GoNorth, &GoSouth, &GoWest, &GoEast}; jmp[rand()%4](state); }
+
 
 void applyDeltaToIp(InterpreterState *state)
 {
@@ -83,9 +98,22 @@ void applyDeltaToIp(InterpreterState *state)
 
 void runInterpreterStep(InterpreterState *state)
 {
+	if (state->errorFlag)
+		return;
 	applyDeltaToIp(state);
 
-	return;
+	Mutator jmp[] = {
+		[0 ... 255] = &IrrecoverableError,
+		[' '] = &DoNothing,
+		['^'] = &GoNorth,
+		['v'] = &GoSouth,
+		['<'] = &GoWest,
+		['>'] = &GoEast,
+		['?'] = &GoRandom,
+	};
+
+	auto offset = indexToOffset(state->ip);
+	jmp[offset](state);
 }
 
 InterpreterState emptyInterpreter()

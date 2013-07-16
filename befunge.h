@@ -14,11 +14,8 @@ typedef struct InterpreterState
 	Stack *data;
 	uint8_t *instructions;
 	uint32_t *colors;
+	bool errorFlag;
 } InterpreterState;
-
-typedef enum Opcode {
-	NoOp
-} Opcode;
 
 Index defaultIndex();
 InterpreterState emptyInterpreter();
