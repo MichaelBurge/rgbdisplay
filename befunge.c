@@ -37,40 +37,54 @@ bool isNetherZone(Index *idx)
 	return !isInBounds;
 }
 
-void Left(Index *idx)
+bool Left(Index *idx)
 {
 	idx->x--;
 
-	isNetherZone(idx) && (idx->x += XStats(idx->y).vectorLength);
+	return isNetherZone(idx) && (idx->x += XStats(idx->y).vectorLength);
 }
 
-void Right(Index *idx)
+bool Right(Index *idx)
 {
 	idx->x++;
 
-	isNetherZone(idx) && (idx->x -= XStats(idx->y).vectorLength);
+	return isNetherZone(idx) && (idx->x -= XStats(idx->y).vectorLength);
 }
 
-void Up(Index *idx)
+bool Up(Index *idx)
 {
 	idx->y--;
 
-	isNetherZone(idx) && (idx->y -= YStats(idx->x).vectorLength);
+	return isNetherZone(idx) && (idx->y -= YStats(idx->x).vectorLength);
 }
 
-void Down(Index *idx)
+bool Down(Index *idx)
 {
 	idx->y++;
 
-	isNetherZone(idx) && (idx->y += YStats(idx->x).vectorLength);
+	return isNetherZone(idx) && (idx->y += YStats(idx->x).vectorLength);
 }
 
 Index defaultIndex() { Index ret = {.x = 0, .y = 0}; return ret; }
 uint8_t *defaultGrid() { static uint8_t ret[] = { [0 ... 35] = ' ' }; return ret; }
 uint32_t *defaultColors() { static uint32_t ret[] = { [0 ... 35] = 0 }; return ret; }
 
+/* Opcodes */
+
+void GoNorth(InterpreterState *state) { }
+
+void applyDeltaToIp(InterpreterState *state)
+{
+	state->delta.dx < 0 && Left(&state->ip);
+	state->delta.dx > 0 && Right(&state->ip);
+	state->delta.dy < 0 && Up(&state->ip);
+	state->delta.dy > 0 && Down(&state->ip);
+}
+
 void runInterpreterStep(InterpreterState *state)
 {
+	applyDeltaToIp(state);
+
 	return;
 }
 
@@ -80,6 +94,8 @@ InterpreterState emptyInterpreter()
 
 	InterpreterState ret;
 	ret.ip = defaultIndex();
+	ret.delta.dx = 1;
+	ret.delta.dy = 0;
 	ret.data = &emptyStack;
 	ret.instructions = defaultGrid();
 	ret.colors = defaultColors();

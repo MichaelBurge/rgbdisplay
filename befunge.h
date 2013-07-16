@@ -4,13 +4,13 @@
 
 typedef struct Index
 {
-	uint8_t x;
-	uint8_t y;
+	uint8_t x, y;
 } Index;
 
 typedef struct InterpreterState
 {
 	Index ip;
+	struct { int8_t dx, dy;} delta;
 	Stack *data;
 	uint8_t *instructions;
 	uint32_t *colors;
