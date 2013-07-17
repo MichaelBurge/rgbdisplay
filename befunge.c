@@ -15,7 +15,7 @@ typedef struct VectorStats
 	uint8_t vectorLength;
 } VectorStats;
 
-VectorStats XStats(char y)
+VectorStats XStats(uint8_t y)
 {
 	bool isSmall = y == 0 || y == 5;
 	struct VectorStats ret = {.vectorStart = 1, .vectorLength = smallRowWidth};
@@ -36,34 +36,15 @@ bool isNetherZone(Index *idx)
 		isInBounds(idx->y, yStats.vectorStart, yStats.vectorLength);
 	return !isInDisplayArea;
 }
-
-bool Left(Index *idx)
-{
-	idx->x--;
-
-	return isNetherZone(idx) && (idx->x += XStats(idx->y).vectorLength);
+bool ChangeDir(Index *idx, int8_t *dim1, int8_t *dim2, bool plusMinus, VectorStats (*dimStats)(uint8_t)) {
+	*dim1 += plusMinus;
+	return isNetherZone(idx) && (*dim1 -= (plusMinus) * dimStats(*dim2).vectorLength);
 }
 
-bool Right(Index *idx)
-{
-	idx->x++;
-
-	return isNetherZone(idx) && (idx->x -= XStats(idx->y).vectorLength);
-}
-
-bool Up(Index *idx)
-{
-	idx->y--;
-
-	return isNetherZone(idx) && (idx->y -= YStats(idx->x).vectorLength);
-}
-
-bool Down(Index *idx)
-{
-	idx->y++;
-
-	return isNetherZone(idx) && (idx->y += YStats(idx->x).vectorLength);
-}
+bool Left(Index *idx)  { return ChangeDir(idx, &idx->x, &idx->y,  1, &XStats); }
+bool Right(Index *idx) { return ChangeDir(idx, &idx->x, &idx->y, -1, &XStats); }
+bool Up(Index *idx)    { return ChangeDir(idx, &idx->y, &idx->x, -1, &YStats); }
+bool Down(Index *idx)  { return ChangeDir(idx, &idx->y, &idx->x,  1, &YStats); }
 
 uint16_t indexToOffset(Index index) {
 	uint16_t offset = index.x;
